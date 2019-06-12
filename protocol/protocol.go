@@ -25,6 +25,19 @@ type Protocol struct {
 type RRs int
 
 const (
-	MaskBit1 = 0x0001
-	MaskBit2 = 0x000f
+	ShiftQR = 0
+
+	ShiftOpCode = ShiftQR + 1
+
+	ShiftAA = ShiftOpCode + 4
+
+	ShiftTC = ShiftAA + 1
+
+	ShiftRD = ShiftTC + 1
+
+	ShiftRA = ShiftRD + 1
+
+	ShiftZero = ShiftRA + 1
+
+	ShiftRCode = ShiftZero + 3
 )

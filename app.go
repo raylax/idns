@@ -9,8 +9,6 @@ import (
 
 func main() {
 
-	println(util.FormatHexString(15))
-
 	addr, err := net.ResolveUDPAddr("udp", "0.0.0.0:53")
 	if err != nil {
 		fmt.Println(err)
@@ -37,5 +35,5 @@ func main() {
 }
 
 func process(rAddr *net.UDPAddr, data []byte) {
-	util.MakePacket(data)
+	util.ReadPacket(data)
 }
