@@ -1,8 +1,7 @@
 package protocol
 
 type Protocol struct {
-
-	TransactionId int16
+	TransactionId int
 
 	Flags
 
@@ -21,12 +20,11 @@ type Protocol struct {
 	Authorities []Authority
 
 	Additions []Addition
-
 }
 
-type RRs int16
+type RRs int
 
 const (
-	MASK_BIT_1	= 0x0001
-	MASK_BIT_4	= 0x000f
+	MaskBit1 = 0x0001
+	MaskBit2 = 0x000f
 )
