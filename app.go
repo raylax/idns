@@ -2,6 +2,7 @@ package main
 
 import (
 	"./util"
+	"encoding/json"
 	"fmt"
 	"net"
 	"os"
@@ -30,10 +31,15 @@ func main() {
 			fmt.Println(err)
 			continue
 		}
-		go process(rAddr, buf[:n])
+		process(rAddr, buf[:n])
 	}
 }
 
 func process(rAddr *net.UDPAddr, data []byte) {
-	util.ReadPacket(data)
+	packet := util.ReadPacket(data)
+	json, err := json.Marshal(packet)
+	if err != nil {
+		panic(err)
+	}
+	println(string(json))
 }

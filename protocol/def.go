@@ -2,53 +2,184 @@ package protocol
 
 type Name string
 
-type Type int16
+const Unknown = "UNKNOWN"
 
-type Class int16
+type valueName struct {
+	Value int
+	Name  string
+}
 
-type TTL int32
+type Type valueName
 
-const (
-	TypeA          Type = 0x0001
-	TypeNS         Type = 0x0002
-	TypeCNAME      Type = 0x0005
-	TypeSOA        Type = 0x0006
-	TypePTR        Type = 0x000c
-	TypeMX         Type = 0x000f
-	TypeTXT        Type = 0x0010
-	TypeRP         Type = 0x0011
-	TypeAFSDB      Type = 0x0012
-	TypeSIG        Type = 0x0018
-	TypeKEY        Type = 0x0019
-	TypeAAAA       Type = 0x001c
-	TypeLOC        Type = 0x001d
-	TypeSRV        Type = 0x0021
-	TypeNAPTR      Type = 0x0023
-	TypeKX         Type = 0x0024
-	TypeCERT       Type = 0x0025
-	TypeDNAME      Type = 0x0027
-	TypeOPT        Type = 0x0029
-	TypeAPL        Type = 0x002a
-	TypeDS         Type = 0x002b
-	TypeSSHFP      Type = 0x002c
-	TypeIPSECKEY   Type = 0x002d
-	TypeRRSIG      Type = 0x002e
-	TypeNSEC       Type = 0x002f
-	TypeDNSKEY     Type = 0x0030
-	TypeDHCID      Type = 0x0031
-	TypeNSEC3      Type = 0x0032
-	TypeNSEC3PARAM Type = 0x0033
-	TypeTLSA       Type = 0x0034
-	TypeHIP        Type = 0x0037
-	TypeSPF        Type = 0x0063
-	TypeTKEY       Type = 0x00f9
-	TypeTSIG       Type = 0x00fa
-	TypeIXFR       Type = 0x00fb
-	TypeAXFR       Type = 0x00fc
-	TypeANY        Type = 0x00ff
-	TypeCAA        Type = 0x0101
+func ParseType(value int) Type {
+	for _, t := range Types {
+		if t.Value == value {
+			return t
+		}
+	}
+	return Type{Value: value, Name: Unknown}
+}
+
+type Class valueName
+
+func ParseClass(value int) Class {
+	for _, t := range Classes {
+		if t.Value == value {
+			return t
+		}
+	}
+	return Class{Value: value, Name: Unknown}
+}
+
+type QR valueName
+
+func ParseRCode(value int) RCode {
+	for _, r := range RCodes {
+		if r.Value == value {
+			return r
+		}
+	}
+	return RCode{Value: value, Name: Unknown}
+}
+
+var (
+	QRQuery    QR = QR{Value: 0x00, Name: "Query"}
+	QRResponse QR = QR{Value: 0x01, Name: "Response"}
 )
 
-const (
-	ClassIN Class = 0x0001
+type OpCode valueName
+
+func ParseOpCode(value int) OpCode {
+	for _, o := range OpCodes {
+		if o.Value == value {
+			return o
+		}
+	}
+	return OpCode{Value: value, Name: Unknown}
+}
+
+var OpCodes = []OpCode{
+	OpCodeQuery,
+	OpCodeIQuery,
+	OpCodeStatus,
+	OpCodeNotify,
+	OpCodeUpdate,
+}
+
+var (
+	OpCodeQuery  = OpCode{Value: 0x0000, Name: "Query"}
+	OpCodeIQuery = OpCode{Value: 0x0001, Name: "IQuery"}
+	OpCodeStatus = OpCode{Value: 0x0002, Name: "Status"}
+	OpCodeNotify = OpCode{Value: 0x0004, Name: "Notify"}
+	OpCodeUpdate = OpCode{Value: 0x0005, Name: "Update"}
+)
+
+type RCode valueName
+
+var RCodes = []RCode{
+	RCodeNoerror,
+	RCodeServfail,
+	RCodeNxdomain,
+}
+
+var (
+	RCodeNoerror  RCode = RCode{Value: 0x0000, Name: "No error"}
+	RCodeServfail RCode = RCode{Value: 0x0002, Name: "Server fail"}
+	RCodeNxdomain RCode = RCode{Value: 0x0003, Name: "Non-existent domain"}
+)
+
+type TTL int
+
+var Types = []Type{
+	TypeA,
+	TypeNS,
+	TypeCNAME,
+	TypeSOA,
+	TypePTR,
+	TypeMX,
+	TypeTXT,
+	TypeRP,
+	TypeAFSDB,
+	TypeSIG,
+	TypeKEY,
+	TypeAAAA,
+	TypeLOC,
+	TypeSRV,
+	TypeNAPTR,
+	TypeKX,
+	TypeCERT,
+	TypeDNAME,
+	TypeOPT,
+	TypeAPL,
+	TypeDS,
+	TypeSSHFP,
+	TypeIPSECKEY,
+	TypeRRSIG,
+	TypeNSEC,
+	TypeDNSKEY,
+	TypeDHCID,
+	TypeNSEC3,
+	TypeNSEC3PARAM,
+	TypeTLSA,
+	TypeHIP,
+	TypeSPF,
+	TypeTKEY,
+	TypeTSIG,
+	TypeIXFR,
+	TypeAXFR,
+	TypeANY,
+	TypeCAA,
+	TypeTA,
+	TypeDLV,
+}
+
+var (
+	TypeA          = Type{Value: 0x0001, Name: "A"}
+	TypeNS         = Type{Value: 0x0002, Name: "NS"}
+	TypeCNAME      = Type{Value: 0x0005, Name: "CNAME"}
+	TypeSOA        = Type{Value: 0x0006, Name: "SOA"}
+	TypePTR        = Type{Value: 0x000c, Name: "PTR"}
+	TypeMX         = Type{Value: 0x000f, Name: "MX"}
+	TypeTXT        = Type{Value: 0x0010, Name: "TXT"}
+	TypeRP         = Type{Value: 0x0011, Name: "RP"}
+	TypeAFSDB      = Type{Value: 0x0012, Name: "AFSDB"}
+	TypeSIG        = Type{Value: 0x0018, Name: "SIG"}
+	TypeKEY        = Type{Value: 0x0019, Name: "KEY"}
+	TypeAAAA       = Type{Value: 0x001c, Name: "AAAA"}
+	TypeLOC        = Type{Value: 0x001d, Name: "LOC"}
+	TypeSRV        = Type{Value: 0x0021, Name: "SRV"}
+	TypeNAPTR      = Type{Value: 0x0023, Name: "NAPTR"}
+	TypeKX         = Type{Value: 0x0024, Name: "KX"}
+	TypeCERT       = Type{Value: 0x0025, Name: "CERT"}
+	TypeDNAME      = Type{Value: 0x0027, Name: "DNAME"}
+	TypeOPT        = Type{Value: 0x0029, Name: "OPT"}
+	TypeAPL        = Type{Value: 0x002a, Name: "APL"}
+	TypeDS         = Type{Value: 0x002b, Name: "DS"}
+	TypeSSHFP      = Type{Value: 0x002c, Name: "SSHFP"}
+	TypeIPSECKEY   = Type{Value: 0x002d, Name: "IPSECKEY"}
+	TypeRRSIG      = Type{Value: 0x002e, Name: "RRSIG"}
+	TypeNSEC       = Type{Value: 0x002f, Name: "NSEC"}
+	TypeDNSKEY     = Type{Value: 0x0030, Name: "DNSKEY"}
+	TypeDHCID      = Type{Value: 0x0031, Name: "DHCID"}
+	TypeNSEC3      = Type{Value: 0x0032, Name: "NSEC3"}
+	TypeNSEC3PARAM = Type{Value: 0x0033, Name: "NSEC3PARAM"}
+	TypeTLSA       = Type{Value: 0x0034, Name: "TLSA"}
+	TypeHIP        = Type{Value: 0x0037, Name: "HIP"}
+	TypeSPF        = Type{Value: 0x0063, Name: "SPF"}
+	TypeTKEY       = Type{Value: 0x00f9, Name: "TKEY"}
+	TypeTSIG       = Type{Value: 0x00fa, Name: "TSIG"}
+	TypeIXFR       = Type{Value: 0x00fb, Name: "IXFR"}
+	TypeAXFR       = Type{Value: 0x00fc, Name: "AXFR"}
+	TypeANY        = Type{Value: 0x00ff, Name: "ANY"}
+	TypeCAA        = Type{Value: 0x0101, Name: "CAA"}
+	TypeTA         = Type{Value: 0x8000, Name: "TA"}
+	TypeDLV        = Type{Value: 0x8001, Name: "DLV"}
+)
+
+var Classes = []Class{
+	ClassIN,
+}
+
+var (
+	ClassIN Class = Class{Value: 0x0001, Name: "IN"}
 )

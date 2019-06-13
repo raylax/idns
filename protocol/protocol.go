@@ -2,27 +2,16 @@ package protocol
 
 type Protocol struct {
 	TransactionId int
-
-	Flags
-
-	QuestionRRs RRs
-
-	AnswerRRs RRs
-
-	AuthorityRRs RRs
-
-	AdditionalRRs RRs
-
-	Questions []Question
-
-	Answers []Answer
-
-	Authorities []Authority
-
-	Additions []Addition
+	Flags         Flags
+	QuestionRRs   int
+	AnswerRRs     int
+	AuthorityRRs  int
+	AdditionalRRs int
+	Questions     []Question
+	Answers       []Answer
+	Authorities   []Authority
+	Additions     []Addition
 }
-
-type RRs int
 
 const (
 	ShiftQR = 0

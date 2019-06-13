@@ -1,9 +1,7 @@
 package protocol
 
 type Question struct {
-	Name
-
-	Type
-
-	Class
+	Name  string
+	Type  Type
+	Class Class
 }
