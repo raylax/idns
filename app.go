@@ -37,9 +37,9 @@ func main() {
 
 func process(rAddr *net.UDPAddr, data []byte) {
 	packet := util.ReadPacket(data)
-	json, err := json.Marshal(packet)
+	j, err := json.Marshal(packet)
 	if err != nil {
 		panic(err)
 	}
-	println(string(json))
+	println(string(j))
 }
