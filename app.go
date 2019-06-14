@@ -2,79 +2,63 @@ package main
 
 import (
 	"./util"
-	"encoding/json"
-	"fmt"
 	"log"
 	"net"
-	"os"
-	"time"
 )
 
 const (
-	ClientReadSize   = 1024
+	// 1kb
+	ClientReadSize = 1024
+	// 1kb
 	UpstreamReadSize = 1024
+	// process pool size
+	ProcessPoolSize = 1000
 )
 
-func main() {
+var processPoolCh = make(chan bool, ProcessPoolSize)
 
+func main() {
 	addr, err := net.ResolveUDPAddr("udp", "0.0.0.0:53")
 	if err != nil {
-		fmt.Println(err)
-		os.Exit(1)
+		panic(err)
 	}
-
 	conn, err := net.ListenUDP("udp", addr)
 	if err != nil {
-		fmt.Println(err)
-		os.Exit(1)
+		panic(err)
 	}
 	defer conn.Close()
-
 	conn.SetReadBuffer(ClientReadSize)
-	buf := make([]byte, ClientReadSize)
-
 	for {
-		start := time.Now()
+		processPoolCh <- true
+		read(conn)
+	}
+}
+
+func read(conn *net.UDPConn) {
+	buf := make([]byte, ClientReadSize)
+	for {
 		n, rAddr, err := conn.ReadFromUDP(buf)
-		util.LogSlowStepTimes(fmt.Sprintf("Read from client size:%v", n), start)
 		if err != nil {
+			log.Println("Failed to read data from client", err)
 			continue
 		}
-		go process(conn, rAddr, buf[:n])
+		err = process(conn, rAddr, buf[:n])
+		if err != nil {
+			log.Println("Failed to process request", err)
+			continue
+		}
 	}
+	<-processPoolCh
 }
 
-func process(conn *net.UDPConn, rAddr *net.UDPAddr, data []byte) {
-	packet := util.ReadPacket(data)
-	_, err := json.Marshal(packet)
+func process(conn *net.UDPConn, rAddr *net.UDPAddr, data []byte) error {
+	result, err := util.QueryUpstream("114.114.114.114", data, UpstreamReadSize)
+	_ = util.ReadPacket(result)
+	//println(packet.String())
 	if err != nil {
-		panic(err)
+		log.Println("Failed to query from upstream", err)
+		return err
 	}
-
-	result := queryUpstream(data)
-	packet = util.ReadPacket(data)
-
-	start := time.Now()
-	n, err := conn.WriteToUDP(result, rAddr)
-	util.LogSlowStepTimes(fmt.Sprintf("Write to client size:%v", n), start)
-	if err != nil {
-		log.Println(err)
-	}
-}
-
-func queryUpstream(data []byte) []byte {
-	start := time.Now()
-	conn, err := net.Dial("udp", "8.8.8.8:53")
-	if err != nil {
-		panic(err)
-	}
-	defer conn.Close()
-	_, err = conn.Write(data)
-	if err != nil {
-		panic(err)
-	}
-	buf := make([]byte, UpstreamReadSize)
-	n, err := conn.Read(buf)
-	util.LogSlowStepTimes(fmt.Sprintf("Query from upstream sent:%v recv:%v", len(data), n), start)
-	return buf[:n]
+	_, err = conn.WriteToUDP(result, rAddr)
+	return err
 }

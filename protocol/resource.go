@@ -1,10 +1,10 @@
 package protocol
 
 type Resource struct {
-	Name       Name
+	Name       string
 	Type       Type
 	Class      Class
 	TTL        int
-	DataLength int16
+	DataLength int
 	Data       string
 }

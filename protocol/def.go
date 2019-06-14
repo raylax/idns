@@ -77,15 +77,29 @@ var (
 type RCode valueName
 
 var RCodes = []RCode{
-	RCodeNoerror,
-	RCodeServfail,
-	RCodeNxdomain,
+	RCodeNoError,
+	RCodeFormErr,
+	RCodeServFail,
+	RCodeNXDomain,
+	RCodeNotImp,
+	RCodeRefused,
+	RCodeYXDomain,
+	RCodeXRRSet,
+	RCodeNotAuth,
+	RCodeNotZone,
 }
 
 var (
-	RCodeNoerror  RCode = RCode{Value: 0x0000, Name: "No error"}
-	RCodeServfail RCode = RCode{Value: 0x0002, Name: "Server fail"}
-	RCodeNxdomain RCode = RCode{Value: 0x0003, Name: "Non-existent domain"}
+	RCodeNoError  = RCode{Value: 0x0000, Name: "NOERROR"}
+	RCodeFormErr  = RCode{Value: 0x0001, Name: "FORMERR"}
+	RCodeServFail = RCode{Value: 0x0002, Name: "SERVFAIL"}
+	RCodeNXDomain = RCode{Value: 0x0003, Name: "NXDOMAIN"}
+	RCodeNotImp   = RCode{Value: 0x0004, Name: "NOTIMP"}
+	RCodeRefused  = RCode{Value: 0x0005, Name: "REFUSED"}
+	RCodeYXDomain = RCode{Value: 0x0006, Name: "YXDOMAIN"}
+	RCodeXRRSet   = RCode{Value: 0x0007, Name: "XRRSET"}
+	RCodeNotAuth  = RCode{Value: 0x0008, Name: "NOTAUTH"}
+	RCodeNotZone  = RCode{Value: 0x0009, Name: "NOTZONE"}
 )
 
 var Types = []Type{

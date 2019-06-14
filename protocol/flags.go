@@ -7,6 +7,8 @@ type Flags struct {
 	TC     bool
 	RD     bool
 	RA     bool
-	Z      int
+	Z      bool
+	AD     bool
+	CD     bool
 	RCode  RCode
 }
