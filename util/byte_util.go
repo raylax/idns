@@ -2,7 +2,6 @@ package util
 
 import (
 	"../protocol"
-	"net"
 )
 
 const byteSize = 8
@@ -67,20 +66,6 @@ func ReadPacket(data []byte) protocol.Protocol {
 	packet.Questions = questions
 
 	return packet
-}
-
-func SendToUpstream(upstream string, data []byte) {
-	conn, err := net.Dial("udp", upstream+":53")
-	if err != nil {
-		panic(err)
-	}
-	_, err = conn.Write(data)
-	if err != nil {
-		panic(err)
-	}
-	buf := make([]byte, 128)
-	_, err = conn.Read(buf)
-
 }
 
 func readDomain(offset uint, data []byte) (string, uint) {

@@ -88,8 +88,6 @@ var (
 	RCodeNxdomain RCode = RCode{Value: 0x0003, Name: "Non-existent domain"}
 )
 
-type TTL int
-
 var Types = []Type{
 	TypeA,
 	TypeNS,

@@ -1,5 +1,7 @@
 package protocol
 
+import "encoding/json"
+
 type Protocol struct {
 	TransactionId int
 	Flags         Flags
@@ -11,6 +13,14 @@ type Protocol struct {
 	Answers       []Answer
 	Authorities   []Authority
 	Additions     []Addition
+}
+
+func (p *Protocol) String() string {
+	j, err := json.Marshal(p)
+	if err != nil {
+		return ""
+	}
+	return string(j)
 }
 
 const (
