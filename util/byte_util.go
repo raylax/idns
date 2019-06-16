@@ -2,6 +2,7 @@ package util
 
 import (
 	"../protocol"
+	"fmt"
 )
 
 const byteSize = 8
@@ -53,7 +54,7 @@ func ReadPacket(data []byte) protocol.Protocol {
 
 	questions := make([]protocol.Question, packet.QuestionRRs)
 	for i := 0; i < packet.QuestionRRs; i++ {
-		name, l := readName(offset, data, 0xff)
+		name, l := readData(offset, data)
 		offset += l
 		ntype := protocol.ParseType(readInt16(offset, data))
 		offset += 2
@@ -85,15 +86,9 @@ func ReadPacket(data []byte) protocol.Protocol {
 
 func readResource(offset uint, data []byte) (protocol.Resource, uint) {
 	resource := protocol.Resource{}
-	var l uint
-	if data[offset] == protocol.OffsetNameFlag {
-		resource.Name, _ = readName(uint(data[offset+1]), data, 0xff)
-		l += 2
-	} else {
-		name, ln := readName(offset+l, data, 0xff)
-		l += ln
-		resource.Name = name
-	}
+	name, l := readName(offset, data)
+	resource.Name = name
+	println()
 	println("Name =>> ", resource.Name)
 	resource.Type = protocol.ParseType(readInt16(offset+l, data))
 	println("Type =>> ", resource.Type.Name)
@@ -107,25 +102,37 @@ func readResource(offset uint, data []byte) (protocol.Resource, uint) {
 	l += 2
 	println("DataLen =>> ", dataLen)
 
-	if resource.Type == protocol.TypeA {
-		resource.Data = string(readInt16(offset+l, data)) +
-			"." + string(readInt16(offset+l+1, data)) +
-			"." + string(readInt16(offset+l+2, data)) +
-			"." + string(readInt16(offset+l+3, data))
-	} else {
-		name, _ := readName(offset+l, data, dataLen)
+	switch resource.Type {
+	case protocol.TypeA, protocol.TypeMX:
+		resource.Data = fmt.Sprintf("%v.%v.%v.%v",
+			readInt8(offset+l, data),
+			readInt8(offset+l+1, data),
+			readInt8(offset+l+2, data),
+			readInt8(offset+l+3, data))
+		break
+	default:
+		name, _ := readData(offset+l, data)
 		resource.Data = name
 	}
+
 	l += dataLen
 	println("Data =>> ", resource.Data)
 
 	return resource, l
 }
 
-func readName(offset uint, data []byte, length uint) (string, uint) {
+func readName(offset uint, data []byte) (string, uint) {
+	if data[offset] == protocol.OffsetNameFlag {
+		name, _ := readData(uint(data[offset+1]), data)
+		return name, 2
+	}
+	return readData(offset, data)
+}
+
+func readData(offset uint, data []byte) (string, uint) {
 	var name string
 	var i, l uint
-	for data[offset+l] != 0 && l < length {
+	for data[offset+l] != 0 {
 		if i > 0 {
 			name += "."
 		}
@@ -133,8 +140,8 @@ func readName(offset uint, data []byte, length uint) (string, uint) {
 		l += 1
 		if strLen == protocol.OffsetNameFlag {
 			pos := uint(data[offset+l])
-			n, _ := readName(pos, data, length)
-			l += 1
+			n, ln := readData(pos, data)
+			l += ln
 			name += n
 		} else {
 			name += readString(offset+l, strLen, data)
@@ -147,6 +154,10 @@ func readName(offset uint, data []byte, length uint) (string, uint) {
 
 func boolBit(flags int, shift uint) bool {
 	return (flags>>shift)&0x1 == 1
+}
+
+func readInt8(offset uint, data []byte) int {
+	return readInt(offset, data, 8)
 }
 
 func readInt16(offset uint, data []byte) int {

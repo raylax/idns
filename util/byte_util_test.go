@@ -4,33 +4,6 @@ import (
 	"testing"
 )
 
-func Test_readDomain(t *testing.T) {
-	type args struct {
-		offset uint
-		data   []byte
-	}
-	tests := []struct {
-		name string
-		args args
-		want string
-	}{
-		{
-			args: struct {
-				offset uint
-				data   []byte
-			}{offset: 0, data: []byte("\x03\x77\x77\x77\x05\x62\x61\x69\x64\x75\x03\x63\x6f\x6d\x00")},
-			want: "www.baidu.com",
-		},
-	}
-	for _, tt := range tests {
-		t.Run(tt.name, func(t *testing.T) {
-			if got, _ := readDomain(tt.args.offset, tt.args.data); got != tt.want {
-				t.Errorf("readDomain() = %v, want %v", got, tt.want)
-			}
-		})
-	}
-}
-
 func Test_boolBit(t *testing.T) {
 	type args struct {
 		flags int
@@ -123,7 +96,7 @@ func Test_readInt16(t *testing.T) {
 			args: struct {
 				offset uint
 				data   []byte
-			}{offset: 0, data: []byte("\xf\xf")},
+			}{offset: 0, data: []byte("\x00\xff")},
 			want: 255,
 		},
 	}
@@ -148,11 +121,11 @@ func Test_readInt(t *testing.T) {
 		want int
 	}{
 		{
-			args: struct { 
+			args: struct {
 				offset uint
 				data   []byte
 				bit    int
-			}{offset: 0, data: []byte("\xf\xf"), bit: 8},
+			}{offset: 0, data: []byte("\x0f"), bit: 8},
 			want: 15,
 		},
 	}
