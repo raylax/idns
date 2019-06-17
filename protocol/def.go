@@ -195,3 +195,11 @@ var Classes = []Class{
 var (
 	ClassIN Class = Class{Value: 0x0001, Name: "IN"}
 )
+
+type Error struct {
+	Message string
+}
+
+func (e *Error) Error() string {
+	return e.Message
+}

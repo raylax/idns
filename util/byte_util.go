@@ -116,7 +116,6 @@ func readResource(offset uint, data []byte) (protocol.Resource, uint) {
 	resource.TTL = readInt(offset+l, data, 32)
 	l += 4
 	dataLen := uint(readInt16(offset+l, data))
-	resource.DataLength = int(dataLen)
 	l += 2
 
 	switch resource.Type {

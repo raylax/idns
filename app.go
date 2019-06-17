@@ -1,6 +1,7 @@
 package main
 
 import (
+	"./api"
 	"./util"
 	"log"
 	"net"
@@ -18,6 +19,10 @@ const (
 var processPoolCh = make(chan bool, ProcessPoolSize)
 
 func main() {
+
+	apiServer := api.NewServer()
+	go apiServer.Start()
+
 	addr, err := net.ResolveUDPAddr("udp", "0.0.0.0:53")
 	if err != nil {
 		panic(err)
@@ -52,9 +57,10 @@ func read(conn *net.UDPConn) {
 }
 
 func process(conn *net.UDPConn, rAddr *net.UDPAddr, data []byte) error {
+
+	// packet := util.ReadPacket(data)
+
 	result, err := util.QueryUpstream("114.114.114.114", data, UpstreamReadSize)
-	_ = util.ReadPacket(result)
-	//println(packet.String())
 	if err != nil {
 		log.Println("Failed to query from upstream", err)
 		return err
