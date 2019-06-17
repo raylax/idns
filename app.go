@@ -30,7 +30,7 @@ func main() {
 	conn.SetReadBuffer(ClientReadSize)
 	for {
 		processPoolCh <- true
-		read(conn)
+		go read(conn)
 	}
 }
 

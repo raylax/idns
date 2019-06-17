@@ -73,25 +73,43 @@ func ReadPacket(data []byte) protocol.Protocol {
 		return packet
 	}
 
-	answers := make([]protocol.Resource, packet.AnswerRRs)
-	for i := 0; i < packet.AnswerRRs; i++ {
-		answer, l := readResource(offset, data)
+	if packet.AnswerRRs > 0 {
+		rs, l := readResources(offset, data, packet.AnswerRRs)
+		packet.Answers = rs
 		offset += l
-		answers[i] = answer
 	}
-	packet.Answers = answers
+
+	if packet.AuthorityRRs > 0 {
+		rs, l := readResources(offset, data, packet.AuthorityRRs)
+		packet.Authorities = rs
+		offset += l
+	}
+
+	if packet.AdditionalRRs > 0 {
+		rs, l := readResources(offset, data, packet.AdditionalRRs)
+		packet.Additions = rs
+		offset += l
+	}
 
 	return packet
+}
+
+func readResources(offset uint, data []byte, rs int) ([]protocol.Resource, uint) {
+	resources := make([]protocol.Resource, rs)
+	var l uint
+	for i := 0; i < rs; i++ {
+		answer, length := readResource(offset, data)
+		l += length
+		resources[i] = answer
+	}
+	return resources, l
 }
 
 func readResource(offset uint, data []byte) (protocol.Resource, uint) {
 	resource := protocol.Resource{}
 	name, l := readName(offset, data)
 	resource.Name = name
-	println()
-	println("Name =>> ", resource.Name)
 	resource.Type = protocol.ParseType(readInt16(offset+l, data))
-	println("Type =>> ", resource.Type.Name)
 	l += 2
 	resource.Class = protocol.ParseClass(readInt16(offset+l, data))
 	l += 2
@@ -100,7 +118,6 @@ func readResource(offset uint, data []byte) (protocol.Resource, uint) {
 	dataLen := uint(readInt16(offset+l, data))
 	resource.DataLength = int(dataLen)
 	l += 2
-	println("DataLen =>> ", dataLen)
 
 	switch resource.Type {
 	case protocol.TypeA, protocol.TypeMX:
@@ -110,13 +127,14 @@ func readResource(offset uint, data []byte) (protocol.Resource, uint) {
 			readInt8(offset+l+2, data),
 			readInt8(offset+l+3, data))
 		break
-	default:
+	case protocol.TypeCNAME:
 		name, _ := readData(offset+l, data)
 		resource.Data = name
+		break
+	default:
 	}
 
 	l += dataLen
-	println("Data =>> ", resource.Data)
 
 	return resource, l
 }
