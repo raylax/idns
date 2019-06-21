@@ -22,9 +22,7 @@ func NewServer() *Server {
 func (s *Server) Start() {
 	app := iris.Default()
 	app.Get("/ping", func(ctx iris.Context) {
-		ctx.JSON(iris.Map{
-			"message": "pong",
-		})
+		writeResult(ctx, nil, "pong")
 	})
 
 	zone := app.Party("/zone")
