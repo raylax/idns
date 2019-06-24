@@ -203,3 +203,16 @@ type Error struct {
 func (e *Error) Error() string {
 	return e.Message
 }
+
+var SupportTypes = []Type{
+	TypeA,
+	TypeCNAME,
+}
+
+func IsSupportType(p Type) bool {
+	for _, t := range SupportTypes {
+		if p == t {
+			return true
+		}
+	}
+}

@@ -2,6 +2,7 @@ package main
 
 import (
 	"./api"
+	"./protocol"
 	"./util"
 	"log"
 	"net"
@@ -28,10 +29,10 @@ func main() {
 		panic(err)
 	}
 	conn, err := net.ListenUDP("udp", addr)
+	defer conn.Close()
 	if err != nil {
 		panic(err)
 	}
-	defer conn.Close()
 	conn.SetReadBuffer(ClientReadSize)
 	for {
 		processPoolCh <- true
@@ -58,7 +59,13 @@ func read(conn *net.UDPConn) {
 
 func process(conn *net.UDPConn, rAddr *net.UDPAddr, data []byte) error {
 
-	// packet := util.ReadPacket(data)
+	packet := util.ReadPacket(data)
+	qs := packet.Questions
+	for _, q := range qs {
+		if protocol.IsSupportType(q.Type) {
+
+		}
+	}
 
 	result, err := util.QueryUpstream("114.114.114.114", data, UpstreamReadSize)
 	if err != nil {
